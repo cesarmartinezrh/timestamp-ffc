@@ -26,6 +26,7 @@ app.get('/api', (req, res) => {
 })
 
 app.get('/api/:date?', (req, res) => {
+  let date = new Date(req.params.date)
   const DATE_YYYY_MM_DD_Regexp = new RegExp(
     /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/
   )
@@ -33,7 +34,9 @@ app.get('/api/:date?', (req, res) => {
   const parsedDate = parseInt(DATE)
   const regExpDate = DATE_YYYY_MM_DD_Regexp.test(DATE)
   const unixDate = /^\d+$/.test(DATE)
-  if (regExpDate === false && unixDate === false)
+  const validDate = !isNaN(date.getTime())
+
+  if (regExpDate === false && unixDate === false && validDate === false)
     return res.json({ error: 'Invalid Date' })
   if (regExpDate) {
     const splittedDate = DATE.split('-')
@@ -49,11 +52,10 @@ app.get('/api/:date?', (req, res) => {
     const utcDate = new Date(parsedDate).toUTCString()
     return res.json({ unix: parsedDate, utc: utcDate })
   }
-})
-
-// your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' })
+  if (validDate) {
+    const utcDate = date.toUTCString()
+    return res.json({ unix: date.getTime(), utc: utcDate })
+  }
 })
 
 // listen for requests :)
